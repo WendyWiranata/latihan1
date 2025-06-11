@@ -13,7 +13,9 @@ class RoleSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Create permissions
+       // Buat permission hanya jika belum ada
+        Permission::firstOrCreate(['name' => 'company-crud', 'guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'admin-crud', 'guard_name' => 'web']);
         $permissions = [
             'company-crud',
             'admin-crud',
@@ -30,7 +32,7 @@ class RoleSeeder extends Seeder
         }
 
         // Create roles and assign permissions
-        $superAdmin = Role::create(['name' => 'SuperAdmin']);
+              $superAdmin = Role::firstOrCreate(['name' => 'SuperAdmin', 'guard_name' => 'web']);
         $superAdmin->givePermissionTo([
             'company-crud',
             'admin-crud',
@@ -51,5 +53,13 @@ class RoleSeeder extends Seeder
             'view-salary',
             'view-profile'
         ]);
+             $user = \App\Models\User::firstOrCreate([
+            'email' => 'superadmin@example.com'
+        ], [
+            'name' => 'Super Admin',
+            'password' => bcrypt('password'),
+            'company_id' => 1
+        ]);
+        $user->assignRole('SuperAdmin');
     }
 }
